@@ -11,16 +11,6 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
-// Add this to one of your frontend components to test
-const testBackend = async () => {
-  try {
-    const response = await fetch('http://localhost:8080/api/test');
-    const data = await response.text();
-    console.log('Backend response:', data);
-  } catch (error) {
-    console.error('Error connecting to backend:', error);
-  }
-};
 
 export default function Login() {
   const router = useRouter();
