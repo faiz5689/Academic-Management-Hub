@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.GenericGenerator;
@@ -18,7 +20,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "departments")
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)  // Changed from @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Department {
