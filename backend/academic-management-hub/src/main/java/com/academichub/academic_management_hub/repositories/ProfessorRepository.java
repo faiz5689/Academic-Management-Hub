@@ -33,12 +33,4 @@ public interface ProfessorRepository extends JpaRepository<Professor, UUID> {
     Optional<Professor> findByIdWithDetails(@Param("id") UUID id);
     
     boolean existsByUserIdAndDepartmentId(UUID userId, UUID departmentId);
-    
-    @Query("SELECT p FROM Professor p " +
-           "WHERE p.department.id = :departmentId " +
-           "AND :interest = ANY(p.researchInterests)")
-    List<Professor> findByDepartmentAndResearchInterest(
-        @Param("departmentId") UUID departmentId, 
-        @Param("interest") String interest
-    );
 }

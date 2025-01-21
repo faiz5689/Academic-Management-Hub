@@ -57,9 +57,9 @@ public class Professor {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "research_interests", columnDefinition = "text[]")
-    @Builder.Default
-    private List<String> researchInterests = new ArrayList<>();
+    // Store as comma-separated string for testing with H2
+    @Column(name = "research_interests")
+    private String researchInterests;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -68,4 +68,20 @@ public class Professor {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
+
+    // Helper methods for research interests
+    public List<String> getResearchInterestsList() {
+        if (researchInterests == null || researchInterests.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return List.of(researchInterests.split(","));
+    }
+
+    public void setResearchInterestsList(List<String> interests) {
+        if (interests == null || interests.isEmpty()) {
+            this.researchInterests = "";
+            return;
+        }
+        this.researchInterests = String.join(",", interests);
+    }
 }
