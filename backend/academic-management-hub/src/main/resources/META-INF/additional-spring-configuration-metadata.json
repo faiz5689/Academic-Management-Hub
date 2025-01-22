@@ -1,24 +1,27 @@
-{
-  "properties": [
-    {
-      "name": "jwt.tokenExpiration",
-      "type": "java.lang.String",
-      "description": "A description for 'jwt.tokenExpiration'"
-    },
-    {
-      "name": "jwt.secret",
-      "type": "java.lang.String",
-      "description": "A description for 'jwt.secret'"
-    },
-    {
-      "name": "jwt.issuer",
-      "type": "java.lang.String",
-      "description": "A description for 'jwt.issuer'"
-    },
-    {
-      "name": "jwt.refreshTokenExpiration",
-      "type": "java.lang.String",
-      "description": "A description for 'jwt.refreshTokenExpiration'"
-    }
-  ]
-}
+{"properties": [
+  {
+    "name": "jwt.tokenExpiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.tokenExpiration'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "jwt.issuer",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.issuer'"
+  },
+  {
+    "name": "jwt.refreshTokenExpiration",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.refreshTokenExpiration'"
+  },
+  {
+    "name": "app.frontend-url",
+    "type": "java.lang.String",
+    "description": "A description for 'app.frontend-url'"
+  }
+]}

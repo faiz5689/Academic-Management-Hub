@@ -18,12 +18,10 @@ spec:
           imagePullPolicy: Never  # For local development
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: backend-config
           env:
-            - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: backend-config
-                  key: SPRING_DATASOURCE_URL
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -34,8 +32,18 @@ spec:
                 secretKeyRef:
                   name: postgres-secrets
                   key: POSTGRES_PASSWORD
-            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+            - name: JWT_SECRET
               valueFrom:
-                configMapKeyRef:
-                  name: backend-config
-                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+                secretKeyRef:
+                  name: backend-secrets
+                  key: JWT_SECRET
+            - name: SPRING_MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SPRING_MAIL_USERNAME
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secrets
+                  key: SPRING_MAIL_PASSWORD

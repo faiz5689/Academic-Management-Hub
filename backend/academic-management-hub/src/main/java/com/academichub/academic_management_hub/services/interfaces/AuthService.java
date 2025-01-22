@@ -1,6 +1,7 @@
 package com.academichub.academic_management_hub.services.interfaces;
 
 import com.academichub.academic_management_hub.dto.*;
+
 import java.util.UUID;
 
 public interface AuthService {
