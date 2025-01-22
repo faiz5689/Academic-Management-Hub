@@ -1,18 +1,20 @@
-// ProfessorDTO.java
 package com.academichub.academic_management_hub.dto;
 
 import com.academichub.academic_management_hub.models.ProfessorTitle;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Data
-@SuperBuilder(toBuilder = true)  // Changed from @Builder to @SuperBuilder
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProfessorDTO {
     private UUID id;
     
