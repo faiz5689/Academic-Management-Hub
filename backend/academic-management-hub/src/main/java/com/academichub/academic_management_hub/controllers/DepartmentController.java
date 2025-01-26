@@ -62,6 +62,12 @@ public class DepartmentController {
         return ResponseEntity.ok(updated);
     }
 
+    @PutMapping("/{departmentId}/remove-head")
+    public ResponseEntity<DepartmentDTO> removeHeadProfessor(@PathVariable UUID departmentId) {
+        DepartmentDTO updated = departmentService.removeHeadProfessor(departmentId);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDepartment(@PathVariable UUID id) {
         departmentService.deleteDepartment(id);

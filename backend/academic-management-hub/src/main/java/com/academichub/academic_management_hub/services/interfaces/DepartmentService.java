@@ -10,6 +10,7 @@ public interface DepartmentService {
     DepartmentDTO createDepartment(DepartmentDTO departmentDTO);
     DepartmentDTO getDepartmentById(UUID id);
     DepartmentDTO getDepartmentWithAllDetails(UUID id);
+    DepartmentDTO removeHeadProfessor(UUID departmentId);
     List<DepartmentDTO> getAllDepartments();
     List<DepartmentDTO> searchDepartmentsByName(String nameFragment);
     List<DepartmentDTO> getDepartmentsWithNoHead();

@@ -3,8 +3,8 @@ package com.academichub.academic_management_hub.integration;
 import com.academichub.academic_management_hub.dto.*;
 import com.academichub.academic_management_hub.models.*;
 import com.academichub.academic_management_hub.repositories.DepartmentRepository;
+import com.academichub.academic_management_hub.repositories.ProfessorRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,10 +24,10 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private DepartmentRepository departmentRepository;
-
+    @Autowired
+    private ProfessorRepository professorRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -36,20 +37,17 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     @BeforeEach
     void setUp() {
         super.setUp();
-        
-        Department dept = Department.builder()
+        testDepartment = departmentRepository.save(Department.builder()
             .name("Test Department")
             .description("Test Description")
-            .build();
-        testDepartment = departmentRepository.save(dept);
+            .build());
         
-        User user = new User();
-        user.setEmail("test@example.com");
-        String rawPassword = "password123";
-        user.setPasswordHash(passwordEncoder.encode(rawPassword));
-        user.setRole(UserRole.STAFF);
-        user.setIsActive(true);
-        testUser = userRepository.save(user);
+        testUser = userRepository.save(User.builder()
+            .email("test@example.com")
+            .passwordHash(passwordEncoder.encode("password123"))
+            .role(UserRole.STAFF)
+            .isActive(true)
+            .build());
         entityManager.flush();
     }
 
@@ -62,7 +60,6 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
-            .andDo(print())
             .andExpect(status().isOk())
             .andReturn();
 
@@ -187,6 +184,11 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         assertEquals("professor@test.com", response.getEmail());
         assertEquals(UserRole.PROFESSOR, response.getRole());
         assertTrue(response.getIsActive());
+
+        Professor professor = professorRepository.findByUserId(response.getId())
+            .orElseThrow(() -> new AssertionError("Professor not found"));
+        assertEquals(request.getFirstName(), professor.getFirstName());
+        assertEquals(request.getResearchInterests(), professor.getResearchInterestsList());
     }
 
     @Test
@@ -194,6 +196,38 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         RegistrationRequest request = new RegistrationRequest();
         request.setEmail(testUser.getEmail());
         request.setPassword("Password123@");
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setDepartmentId(testDepartment.getId());
+        request.setTitle(ProfessorTitle.ASSISTANT_PROFESSOR);
+
+        mockMvc.perform(post("/api/auth/register/professor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void registerProfessor_InvalidDepartment_Failure() throws Exception {
+        RegistrationRequest request = new RegistrationRequest();
+        request.setEmail("newprof@test.com");
+        request.setPassword("Password123@");
+        request.setFirstName("John");
+        request.setLastName("Doe");
+        request.setDepartmentId(UUID.randomUUID());
+        request.setTitle(ProfessorTitle.ASSISTANT_PROFESSOR);
+
+        mockMvc.perform(post("/api/auth/register/professor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void registerProfessor_InvalidPassword_Failure() throws Exception {
+        RegistrationRequest request = new RegistrationRequest();
+        request.setEmail("newprof@test.com");
+        request.setPassword("weak");
         request.setFirstName("John");
         request.setLastName("Doe");
         request.setDepartmentId(testDepartment.getId());

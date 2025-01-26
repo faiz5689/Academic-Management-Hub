@@ -60,6 +60,14 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public DepartmentDTO removeHeadProfessor(UUID departmentId) {
+        Department department = findDepartmentById(departmentId);
+        department.setHeadProfessor(null);
+        department = departmentRepository.save(department);
+        return convertToDTO(department);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<DepartmentDTO> getAllDepartments() {
         return departmentRepository.findAll().stream()
