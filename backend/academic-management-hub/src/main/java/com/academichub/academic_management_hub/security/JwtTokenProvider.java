@@ -68,11 +68,8 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().setSigningKey(jwtConfig.getSecret()).parseClaimsJws(token);
             return true;
-        } catch (SignatureException |
-                 MalformedJwtException |
-                 ExpiredJwtException |
-                 UnsupportedJwtException |
-                 IllegalArgumentException ex) {
+        } catch (Exception ex) {
+            System.out.println("Token validation failed: " + ex.getMessage());
             return false;
         }
     }

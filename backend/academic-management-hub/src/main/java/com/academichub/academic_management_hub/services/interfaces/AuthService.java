@@ -11,4 +11,5 @@ public interface AuthService {
     void changePassword(UUID userId, ChangePasswordRequest request);
     void initiatePasswordReset(ResetPasswordRequest request);
     void resetPassword(String token, String newPassword);
+    UserDTO registerProfessor(RegistrationRequest request);
 }

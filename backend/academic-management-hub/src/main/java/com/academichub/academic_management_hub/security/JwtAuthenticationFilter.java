@@ -24,23 +24,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, 
-                                  HttpServletResponse response, 
-                                  FilterChain filterChain) throws ServletException, IOException {
+                                HttpServletResponse response, 
+                                FilterChain filterChain) throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            System.out.println("JWT from request: " + jwt);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                UUID userId = tokenProvider.getUserIdFromToken(jwt);
-                UserDetails userDetails = userDetailsService.loadUserById(userId);
+            if (StringUtils.hasText(jwt)) {
+                boolean isValid = tokenProvider.validateToken(jwt);
+                System.out.println("Is token valid? " + isValid);
                 
-                UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                if (isValid) {
+                    UUID userId = tokenProvider.getUserIdFromToken(jwt);
+                    System.out.println("User ID from token: " + userId);
+                    
+                    UserDetails userDetails = userDetailsService.loadUserById(userId);
+                    System.out.println("User details loaded: " + userDetails);
+                    
+                    UsernamePasswordAuthenticationToken authentication = 
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            System.out.println("Authentication error: " + ex.getMessage());
+            ex.printStackTrace();
         }
 
         filterChain.doFilter(request, response);

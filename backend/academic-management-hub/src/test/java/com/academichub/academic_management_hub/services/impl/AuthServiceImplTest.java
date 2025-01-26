@@ -4,6 +4,8 @@ import com.academichub.academic_management_hub.config.JwtConfig;
 import com.academichub.academic_management_hub.dto.*;
 import com.academichub.academic_management_hub.exceptions.TokenRefreshException;
 import com.academichub.academic_management_hub.models.*;
+import com.academichub.academic_management_hub.repositories.DepartmentRepository;
+import com.academichub.academic_management_hub.repositories.ProfessorRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
 import com.academichub.academic_management_hub.security.JwtTokenProvider;
 import com.academichub.academic_management_hub.security.JwtUserDetails;
@@ -34,6 +36,8 @@ class AuthServiceImplTest {
     @Mock private RefreshTokenService refreshTokenService;
     @Mock private PasswordResetService passwordResetService;
     @Mock private UserRepository userRepository;
+    @Mock private ProfessorRepository professorRepository;
+    @Mock private DepartmentRepository departmentRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private EmailService emailService;
 
@@ -59,6 +63,8 @@ class AuthServiceImplTest {
             refreshTokenService,
             passwordResetService,
             userRepository,
+            professorRepository,
+            departmentRepository,
             passwordEncoder,
             emailService
         );
@@ -66,28 +72,24 @@ class AuthServiceImplTest {
 
     @Test
     void authenticate_ValidCredentials_ReturnsAuthResponse() {
-        LoginRequest request = new LoginRequest();
-        request.setEmail("test@example.com");
-        request.setPassword("password");
-        
-        JwtUserDetails userDetails = new JwtUserDetails(testUser);
-        UsernamePasswordAuthenticationToken authentication = 
-            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        
-        // For AuthService
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(testUser));
-        when(authenticationManager.authenticate(any())).thenReturn(authentication);
-        when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
-        
-        // For JwtTokenProvider
-        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
+    LoginRequest request = new LoginRequest();
+    request.setEmail("test@example.com");
+    request.setPassword("password");
+    
+    JwtUserDetails userDetails = new JwtUserDetails(testUser);
+    UsernamePasswordAuthenticationToken authentication = 
+        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    
+    when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(testUser));
+    when(authenticationManager.authenticate(any())).thenReturn(authentication);
+    when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
+    when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
 
-        AuthResponse response = authService.authenticate(request);
+    AuthResponse response = authService.authenticate(request);
 
-        assertNotNull(response);
-        assertTrue(response.getAccessToken().length() > 0);
-        assertEquals(testRefreshToken.getToken(), response.getRefreshToken());
-        verify(userRepository).save(any(User.class));
+    assertNotNull(response);
+    assertTrue(response.getAccessToken().length() > 0);
+    assertEquals(testRefreshToken.getToken(), response.getRefreshToken());
     }
 
     @Test

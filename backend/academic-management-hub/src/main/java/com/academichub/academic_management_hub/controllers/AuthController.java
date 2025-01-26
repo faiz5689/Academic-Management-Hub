@@ -5,6 +5,8 @@ import com.academichub.academic_management_hub.security.JwtUserDetails;
 import com.academichub.academic_management_hub.services.interfaces.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
+
+
+    @PostMapping("/register/professor")
+    public ResponseEntity<UserDTO> registerProfessor(@Valid @RequestBody RegistrationRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(authService.registerProfessor(request));
+    }
+    
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.authenticate(loginRequest));
