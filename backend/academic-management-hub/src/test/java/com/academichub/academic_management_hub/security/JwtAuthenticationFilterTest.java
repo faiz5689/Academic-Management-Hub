@@ -3,6 +3,7 @@ package com.academichub.academic_management_hub.security;
 import com.academichub.academic_management_hub.config.JwtConfig;
 import com.academichub.academic_management_hub.models.User;
 import com.academichub.academic_management_hub.models.UserRole;
+import com.academichub.academic_management_hub.repositories.RevocatedTokenRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ class JwtAuthenticationFilterTest {
     @Mock private HttpServletResponse response;
     @Mock private FilterChain filterChain;
     @Mock private UserRepository userRepository;
+    @Mock private RevocatedTokenRepository revocatedTokenRepository;
 
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     private JwtTokenProvider tokenProvider;
@@ -41,7 +43,7 @@ class JwtAuthenticationFilterTest {
         jwtConfig.setTokenExpiration(3600000L);
         
         testUser = createTestUser();
-        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository);
+        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository, revocatedTokenRepository);
         userDetailsService = new CustomUserDetailsService(userRepository);
         jwtAuthenticationFilter = new JwtAuthenticationFilter(tokenProvider, userDetailsService);
         
@@ -51,6 +53,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void doFilterInternal_WithValidToken_ShouldSetAuthentication() throws Exception {
         when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(revocatedTokenRepository.existsByToken(any())).thenReturn(false);
         String token = tokenProvider.generateToken(userId);
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
 
@@ -58,7 +61,7 @@ class JwtAuthenticationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
-    }
+    }   
 
     @Test
     void doFilterInternal_WithInvalidToken_ShouldNotSetAuthentication() throws Exception {

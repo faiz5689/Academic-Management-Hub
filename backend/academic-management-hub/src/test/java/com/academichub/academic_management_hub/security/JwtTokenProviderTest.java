@@ -3,6 +3,7 @@ package com.academichub.academic_management_hub.security;
 import com.academichub.academic_management_hub.config.JwtConfig;
 import com.academichub.academic_management_hub.models.User;
 import com.academichub.academic_management_hub.models.UserRole;
+import com.academichub.academic_management_hub.repositories.RevocatedTokenRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,13 +18,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private RevocatedTokenRepository revocatedTokenRepository;
 
     private JwtConfig jwtConfig;
     private JwtTokenProvider tokenProvider;
@@ -38,7 +41,7 @@ class JwtTokenProviderTest {
         jwtConfig.setRefreshTokenExpiration(604800000L);
         jwtConfig.setIssuer("Test Issuer");
 
-        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository);
+        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository, revocatedTokenRepository);
         userId = UUID.randomUUID();
         testUser = createTestUser();
     }
@@ -82,6 +85,25 @@ class JwtTokenProviderTest {
         
         String token = tokenProvider.generateToken(userId);
         assertFalse(tokenProvider.validateToken(token));
+    }
+
+    @Test
+    void validateToken_WithRevokedToken_ShouldReturnFalse() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        when(revocatedTokenRepository.existsByToken(anyString())).thenReturn(true);
+        
+        String token = tokenProvider.generateToken(userId);
+        assertFalse(tokenProvider.validateToken(token));
+    }
+
+    @Test
+    void revokeToken_ShouldSaveToRevocatedRepository() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(testUser));
+        String token = tokenProvider.generateToken(userId);
+        
+        tokenProvider.revokeToken(token, testUser);
+        
+        verify(revocatedTokenRepository).save(any());
     }
 
     @Test

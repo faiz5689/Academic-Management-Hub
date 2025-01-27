@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 
 import com.academichub.academic_management_hub.models.User;
 import com.academichub.academic_management_hub.models.UserRole;
+import com.academichub.academic_management_hub.repositories.RevocatedTokenRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
 
 import java.util.Base64;
@@ -69,8 +70,8 @@ public class TestSecurityConfig {
 
     @Bean
     @Primary
-    public JwtTokenProvider jwtTokenProvider(JwtConfig jwtConfig, UserRepository userRepository) {
-        return new JwtTokenProvider(jwtConfig, userRepository);
+    public JwtTokenProvider jwtTokenProvider(JwtConfig jwtConfig, UserRepository userRepository, RevocatedTokenRepository revocatedTokenRepository) {
+    return new JwtTokenProvider(jwtConfig, userRepository, revocatedTokenRepository);
     }
 
     @Bean

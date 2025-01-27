@@ -6,6 +6,7 @@ import com.academichub.academic_management_hub.exceptions.TokenRefreshException;
 import com.academichub.academic_management_hub.models.*;
 import com.academichub.academic_management_hub.repositories.DepartmentRepository;
 import com.academichub.academic_management_hub.repositories.ProfessorRepository;
+import com.academichub.academic_management_hub.repositories.RevocatedTokenRepository;
 import com.academichub.academic_management_hub.repositories.UserRepository;
 import com.academichub.academic_management_hub.security.JwtTokenProvider;
 import com.academichub.academic_management_hub.security.JwtUserDetails;
@@ -38,6 +39,7 @@ class AuthServiceImplTest {
     @Mock private UserRepository userRepository;
     @Mock private ProfessorRepository professorRepository;
     @Mock private DepartmentRepository departmentRepository;
+    @Mock private RevocatedTokenRepository revocatedTokenRepository;
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private EmailService emailService;
 
@@ -54,7 +56,7 @@ class AuthServiceImplTest {
         jwtConfig.setSecret("verylongandverysecuresecretkeyforhsfivetwelevealgorithmwithenoughbitsverylongandverysecuresecretkeyforhsfivetwelevealgorithmwithenoughbits");
         jwtConfig.setTokenExpiration(3600000L);
         
-        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository);
+        tokenProvider = new JwtTokenProvider(jwtConfig, userRepository, revocatedTokenRepository);
         testRefreshToken = createTestRefreshToken();
         
         authService = new AuthServiceImpl(
