@@ -24,6 +24,12 @@ public class DepartmentController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    @GetMapping("/public/departments")
+    public ResponseEntity<List<DepartmentDTO>> getPublicDepartmentsList() {
+        List<DepartmentDTO> departments = departmentService.getAllDepartments();
+        return ResponseEntity.ok(departments);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DepartmentDTO> getDepartmentById(@PathVariable UUID id) {
         DepartmentDTO department = departmentService.getDepartmentById(id);

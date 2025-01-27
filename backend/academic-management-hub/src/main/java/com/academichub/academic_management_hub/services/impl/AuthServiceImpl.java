@@ -59,9 +59,21 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenProvider.generateToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
+        // Create UserDTO
+        UserDTO userDTO = UserDTO.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .isActive(user.getIsActive())
+            .createdAt(user.getCreatedAt())
+            .lastLogin(user.getLastLogin())
+            .build();
+
         return AuthResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken.getToken())
+            .tokenType("Bearer")
+            .user(userDTO)  // Include user data
             .build();
     }
 

@@ -6,6 +6,15 @@ export enum UserRole {
   STAFF = 'STAFF'
 }
 
+export interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt: string | null;
+  lastLogin: string | null;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -25,6 +34,7 @@ export interface TokenRefreshRequest {
 export interface TokenRefreshResponse {
   accessToken: string;
   refreshToken: string;
+  tokenType: string;
 }
 
 export interface ChangePasswordRequest {
@@ -32,11 +42,24 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
-export interface User {
-  id: string;
+export enum ProfessorTitle {
+  ASSISTANT_PROFESSOR = 'ASSISTANT_PROFESSOR',
+  ASSOCIATE_PROFESSOR = 'ASSOCIATE_PROFESSOR',
+  PROFESSOR = 'PROFESSOR',
+  DISTINGUISHED_PROFESSOR = 'DISTINGUISHED_PROFESSOR',
+  EMERITUS_PROFESSOR = 'EMERITUS_PROFESSOR',
+  VISITING_PROFESSOR = 'VISITING_PROFESSOR',
+  ADJUNCT_PROFESSOR = 'ADJUNCT_PROFESSOR'
+}
+
+export interface RegistrationRequest {
   email: string;
-  role: UserRole;
-  createdAt: string;
-  lastLogin: string;
-  isActive: boolean;
+  password: string;
+  firstName: string;
+  lastName: string;
+  departmentId: string;
+  title: ProfessorTitle;
+  officeLocation?: string;
+  phone?: string;
+  researchInterests?: string[];
 }
