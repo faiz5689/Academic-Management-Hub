@@ -1,5 +1,0 @@
-# In frontend/.dockerignore
-node_modules
-.next
-.git
-.env.local
