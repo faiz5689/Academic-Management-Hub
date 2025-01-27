@@ -1,33 +1,132 @@
+/* src/app/globals.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+/* Custom animations */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Custom Form Styles */
+@layer components {
+  .form-input-base {
+    @apply w-full px-4 py-3 rounded-xl bg-gray-50 text-gray-900 border border-gray-200 
+           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent 
+           transition-all duration-200;
   }
+
+  .form-input-error {
+    @apply bg-red-50 border-red-300 focus:ring-red-500;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+
+  .error-message {
+    @apply mt-1 text-sm text-red-600;
+  }
+
+  .section-title {
+    @apply text-xl font-semibold text-gray-900 mb-6 pb-2 border-b;
+  }
+
+  .submit-button {
+    @apply w-full py-4 px-6 rounded-xl text-base font-medium text-white bg-indigo-600 
+           hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
+           focus:ring-indigo-500 transition-all duration-200 shadow-lg hover:shadow-xl 
+           disabled:bg-indigo-400 disabled:cursor-not-allowed;
+  }
+
+  .research-interest-tag {
+    @apply inline-flex items-center px-3 py-1.5 rounded-lg text-sm bg-indigo-50 
+           text-indigo-700 border border-indigo-100;
+  }
+
+  .research-interest-remove {
+    @apply ml-2 text-indigo-500 hover:text-indigo-700 focus:outline-none transition-colors duration-200;
+  }
+
+  .add-interest-button {
+    @apply px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 
+           transition-all duration-200;
+  }
+}
+
+/* Toast Animation */
+.toast-enter {
+  transform: translateX(100%);
+}
+
+.toast-enter-active {
+  transform: translateX(0);
+  transition: transform 300ms ease-out;
+}
+
+.toast-exit {
+  transform: translateX(0);
+}
+
+.toast-exit-active {
+  transform: translateX(100%);
+  transition: transform 300ms ease-out;
+}
+
+/* Responsive Grid Layout */
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+/* Form Section Spacing */
+.form-section {
+  @apply space-y-6;
+}
+
+/* Password Strength Indicator */
+.password-strength-weak {
+  @apply bg-red-100;
+}
+
+.password-strength-medium {
+  @apply bg-yellow-100;
+}
+
+.password-strength-strong {
+  @apply bg-green-100;
+}
+
+/* Custom Select Styles */
+select {
+  @apply appearance-none bg-no-repeat bg-right;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-size: 1.5em 1.5em;
+}
+
+/* Disable autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #f9fafb inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
