@@ -46,6 +46,15 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/validate")
+    public ResponseEntity<UserDTO> validateToken(@AuthenticationPrincipal JwtUserDetails userDetails) {
+        if (userDetails != null) {
+            return ResponseEntity.ok(authService.getUserById(userDetails.getId()));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+
     @PostMapping("/password/change")
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal JwtUserDetails userDetails,

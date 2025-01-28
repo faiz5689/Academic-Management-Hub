@@ -6,7 +6,8 @@ import {
   TokenRefreshRequest, 
   TokenRefreshResponse, 
   ChangePasswordRequest, 
-  RegistrationRequest 
+  RegistrationRequest,
+  User 
 } from '@/types/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
@@ -48,6 +49,33 @@ export const authService = {
         const apiError = error.response?.data as ApiError;
         throw new AuthenticationError(
           apiError?.message || 'Login failed',
+          error.response?.status || 500,
+          apiError?.fieldErrors
+        );
+      }
+      throw new AuthenticationError('Network error occurred', 500);
+    }
+  },
+
+  async validateToken(): Promise<User> {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new AuthenticationError('Not authenticated', 401);
+    }
+
+    try {
+      const response = await axios.get<User>(`${API_URL}/auth/validate`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const apiError = error.response?.data as ApiError;
+        throw new AuthenticationError(
+          apiError?.message || 'Token validation failed',
           error.response?.status || 500,
           apiError?.fieldErrors
         );

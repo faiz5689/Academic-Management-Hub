@@ -3,9 +3,21 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Menu, X, ChevronDown, LogOut, User, Settings } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  User,
+  Settings,
+  LayoutDashboard,
+  Building2,
+  Users,
+  Shield,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Breadcrumbs from "@/components/navigation/Breadcrumbs";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -105,28 +117,32 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <nav className="mt-4 space-y-1">
           <Link
             href="/dashboard"
-            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 space-x-2"
           >
-            Dashboard
+            <LayoutDashboard size={20} />
+            <span>Dashboard</span>
           </Link>
           <Link
             href="/dashboard/departments"
-            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 space-x-2"
           >
-            Departments
+            <Building2 size={20} />
+            <span>Departments</span>
           </Link>
           <Link
             href="/dashboard/professors"
-            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 space-x-2"
           >
-            Professors
+            <Users size={20} />
+            <span>Professors</span>
           </Link>
           {user?.role === "ADMIN" && (
             <Link
               href="/dashboard/admin"
-              className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+              className="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors duration-200 space-x-2"
             >
-              Admin Panel
+              <Shield size={20} />
+              <span>Admin Panel</span>
             </Link>
           )}
         </nav>
@@ -138,7 +154,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           sidebarOpen ? "ml-64" : "ml-0"
         }`}
       >
-        <div className="p-6">{children}</div>
+        <div className="p-6">
+          <Breadcrumbs />
+          {children}
+        </div>
       </main>
     </div>
   );

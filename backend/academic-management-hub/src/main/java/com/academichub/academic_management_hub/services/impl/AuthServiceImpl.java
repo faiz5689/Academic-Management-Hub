@@ -193,4 +193,20 @@ public class AuthServiceImpl implements AuthService {
             .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public UserDTO getUserById(UUID userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        return UserDTO.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .role(user.getRole())
+            .isActive(user.getIsActive())
+            .createdAt(user.getCreatedAt())
+            .lastLogin(user.getLastLogin())
+            .build();
+    }
+
 }

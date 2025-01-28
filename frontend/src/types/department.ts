@@ -1,10 +1,18 @@
 // src/types/department.ts
 
+export interface Professor {
+  id: string;
+  firstName: string;
+  lastName: string;
+  departmentId: string;
+}
+
 export interface Department {
   id: string;
   name: string;
   description?: string;
-  headProfessorId?: string;
+  headProfessor?: Professor;
+  professors: Professor[];
   createdAt: string;
   updatedAt: string;
 }

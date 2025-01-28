@@ -1,9 +1,16 @@
 // src/lib/hooks/useAuth.tsx
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, AuthResponse } from '@/types/auth';
-import { authService } from '@/lib/api/auth';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import { User, AuthResponse } from "@/types/auth";
+import { authService } from "@/lib/api/auth";
+import { useRouter, usePathname } from "next/navigation";
 
 interface AuthContextType {
   user: User | null;
@@ -17,42 +24,64 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  useEffect(() => {
-    // Check for stored token and validate
-    const token = localStorage.getItem('accessToken');
-    console.log('Stored token:', token ? 'exists' : 'none');
-    setIsLoading(false);
+  // Validate token and set user
+  const validateAuth = useCallback(async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      setUser(null);
+      return false;
+    }
+
+    try {
+      const userData = await authService.validateToken();
+      setUser(userData);
+      return true;
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      authService.clearTokens();
+      setUser(null);
+      return false;
+    }
   }, []);
+
+  // Check authentication on mount
+  useEffect(() => {
+    const initAuth = async () => {
+      setIsLoading(true);
+      await validateAuth();
+      setIsLoading(false);
+    };
+
+    initAuth();
+  }, [validateAuth]);
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('AuthContext: Attempting login...');
+      setIsLoading(true);
       const response = await authService.login({ email, password });
-      console.log('AuthContext: Login response received:', response);
-      
-      // Check if we have the user data in the response
-      if (response.user) {
-        console.log('AuthContext: Setting user data:', response.user);
-        setUser(response.user);
-      } else {
-        console.error('AuthContext: No user data in response');
-        throw new Error('No user data received');
-      }
+      setUser(response.user);
+      router.push("/dashboard");
     } catch (error) {
-      console.error('AuthContext: Login error:', error);
+      console.error("Login error:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
+      setIsLoading(true);
       await authService.logout();
-      setUser(null);
     } catch (error) {
-      console.error('AuthContext: Logout error:', error);
-      // Still clear the user state even if API call fails
+      console.error("Logout error:", error);
+    } finally {
       setUser(null);
+      setIsLoading(false);
+      router.push("/auth/login");
     }
   };
 
@@ -60,20 +89,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     login,
     logout,
-    isLoading
+    isLoading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
