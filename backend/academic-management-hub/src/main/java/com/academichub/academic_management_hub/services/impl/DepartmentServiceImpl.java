@@ -3,6 +3,7 @@ package com.academichub.academic_management_hub.services.impl;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentDTO getDepartmentWithAllDetails(UUID id) {
         Department department = departmentRepository.findByIdWithAllDetails(id)
                 .orElseThrow(() -> new EntityNotFoundException("Department", id));
-        return convertToDTO(department);
+        return convertToDTOWithDetails(department);
     }
 
     @Override
@@ -70,8 +71,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     @Transactional(readOnly = true)
     public List<DepartmentDTO> getAllDepartments() {
-        return departmentRepository.findAll().stream()
-                .map(this::convertToDTO)
+        List<Object[]> departmentsWithCounts = departmentRepository.findAllWithProfessorCount();
+        return departmentsWithCounts.stream()
+                .map(result -> {
+                    Department department = (Department) result[0];
+                    Long count = (Long) result[1];
+                    return convertToDTO(department, count);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -146,7 +152,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 .orElseThrow(() -> new EntityNotFoundException("Department", id));
     }
 
-    private DepartmentDTO convertToDTO(Department department) {
+    private DepartmentDTO convertToDTO(Department department, Long professorCount) {
         return DepartmentDTO.builder()
                 .id(department.getId())
                 .name(department.getName())
@@ -155,6 +161,32 @@ public class DepartmentServiceImpl implements DepartmentService {
                     department.getHeadProfessor().getId() : null)
                 .createdAt(department.getCreatedAt())
                 .updatedAt(department.getUpdatedAt())
+                .professorCount(professorCount)
+                .build();
+    }
+
+    private DepartmentDTO convertToDTO(Department department) {
+        return convertToDTO(department, 
+            departmentRepository.countProfessorsByDepartmentId(department.getId()));
+    }
+
+    private DepartmentDTO convertToDTOWithDetails(Department department) {
+        List<UUID> professorIds = department.getProfessors() != null 
+            ? department.getProfessors().stream()
+                .map(Professor::getId)
+                .collect(Collectors.toList())
+            : Collections.emptyList();
+
+        return DepartmentDTO.builder()
+                .id(department.getId())
+                .name(department.getName())
+                .description(department.getDescription())
+                .headProfessorId(department.getHeadProfessor() != null ? 
+                    department.getHeadProfessor().getId() : null)
+                .createdAt(department.getCreatedAt())
+                .updatedAt(department.getUpdatedAt())
+                .professorCount((long) professorIds.size())
+                .professorIds(professorIds)
                 .build();
     }
 }

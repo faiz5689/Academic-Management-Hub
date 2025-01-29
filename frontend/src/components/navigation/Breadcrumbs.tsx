@@ -4,9 +4,32 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { departmentService } from "@/lib/api/department";
+import type { Department } from "@/types/department";
 
 const Breadcrumbs = () => {
   const pathname = usePathname();
+  const [departmentName, setDepartmentName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDepartmentName = async () => {
+      // Check if we're on a department details page
+      const match = pathname.match(/\/dashboard\/departments\/([\w-]+)/);
+      if (match) {
+        try {
+          const department = await departmentService.getDepartmentById(
+            match[1]
+          );
+          setDepartmentName(department.name);
+        } catch (error) {
+          console.error("Error fetching department:", error);
+        }
+      }
+    };
+
+    fetchDepartmentName();
+  }, [pathname]);
 
   const generateBreadcrumbs = () => {
     // Remove trailing slash and split path into segments
@@ -20,10 +43,19 @@ const Breadcrumbs = () => {
       // Create the URL for this breadcrumb
       const url = `/${segments.slice(0, index + 1).join("/")}`;
 
-      // Format the segment text (capitalize and replace hyphens with spaces)
-      const text = segment
-        .replace(/-/g, " ")
-        .replace(/\b\w/g, (char) => char.toUpperCase());
+      // Check if this segment is a department ID
+      const isDepartmentId =
+        segments[index - 1] === "departments" && segment.match(/[\w-]{36}/); // UUID format
+
+      // Format the segment text
+      let text = segment;
+      if (isDepartmentId && departmentName) {
+        text = departmentName;
+      } else {
+        text = segment
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (char) => char.toUpperCase());
+      }
 
       return {
         text,

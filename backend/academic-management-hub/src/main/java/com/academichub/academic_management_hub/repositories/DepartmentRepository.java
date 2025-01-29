@@ -31,4 +31,12 @@ public interface DepartmentRepository extends JpaRepository<Department, UUID> {
     Optional<Department> findByIdWithAllDetails(@Param("id") UUID id);
     
     List<Department> findByNameContainingIgnoreCase(String nameFragment);
+
+    // Fixed query - parameter name matches the @Param annotation
+    @Query("SELECT COUNT(p) FROM Professor p WHERE p.department.id = :departmentId")
+    Long countProfessorsByDepartmentId(@Param("departmentId") UUID departmentId);
+
+    // Query to fetch all departments with their professor counts
+    @Query("SELECT d, COUNT(p) FROM Department d LEFT JOIN d.professors p GROUP BY d")
+    List<Object[]> findAllWithProfessorCount();
 }

@@ -11,10 +11,16 @@ export interface Department {
   id: string;
   name: string;
   description?: string;
-  headProfessor?: Professor;
-  professors: Professor[];
+  headProfessorId: string | null;  // Changed from headProfessor object
+  professorCount: number;          // Added professorCount
   createdAt: string;
   updatedAt: string;
+}
+
+export interface DepartmentWithDetails extends Department {
+  headProfessor?: Professor;
+  professorIds: string[];
+  professors?: Professor[];
 }
 
 export interface DepartmentCategory {
