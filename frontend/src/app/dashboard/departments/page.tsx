@@ -10,6 +10,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { UserRole } from "@/types/auth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { CreateDepartmentModal } from "@/components/departments/CreateDepartmentModal";
 
 export default function DepartmentsPage() {
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -60,6 +61,10 @@ export default function DepartmentsPage() {
     );
   }
 
+  const handleDepartmentCreate = (newDepartment: Department) => {
+    setDepartments((prevDepartments) => [...prevDepartments, newDepartment]);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-8">
@@ -71,10 +76,15 @@ export default function DepartmentsPage() {
             </p>
           </div>
           {user?.role === UserRole.ADMIN && (
-            <Button className="flex items-center gap-2 shrink-0">
-              <Plus className="h-4 w-4" />
-              <span>Add Department</span>
-            </Button>
+            <CreateDepartmentModal
+              trigger={
+                <Button className="flex items-center gap-2 shrink-0">
+                  <Plus className="h-4 w-4" />
+                  <span>Add Department</span>
+                </Button>
+              }
+              onDepartmentCreated={handleDepartmentCreate}
+            />
           )}
         </div>
 

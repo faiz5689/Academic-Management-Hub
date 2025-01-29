@@ -85,5 +85,59 @@ export const departmentService = {
       }
     });
     return response.data;
+  },
+
+  async updateDepartment(
+    id: string,
+    data: { name: string; description: string }
+  ): Promise<Department> {
+    const token = localStorage.getItem('accessToken');
+    const response = await axios.put<Department>(
+      `${API_URL}/departments/${id}`,
+      data,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  },
+
+  async createDepartment(data: { 
+    name: string; 
+    description: string 
+  }): Promise<Department> {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+  
+    try {
+      const response = await axios.post<Department>(
+        `${API_URL}/departments`,
+        data,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          throw new Error('Unauthorized: Please log in again');
+        } else if (error.response?.status === 403) {
+          throw new Error('Forbidden: You do not have permission to create departments');
+        } else if (error.response?.status === 400) {
+          throw new Error(error.response.data?.message || 'Invalid department data');
+        }
+      }
+      throw new Error('Failed to create department');
+    }
   }
 };

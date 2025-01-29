@@ -16,6 +16,7 @@ import { Users, Edit, UserPlus, Loader2 } from "lucide-react";
 import { ProfessorsList } from "@/components/professors/ProfessorsList";
 import HeadProfessorDialog from "@/components/departments/HeadProfessorDialog";
 import Toast from "@/components/ui/Toast";
+import { EditDepartmentModal } from "@/components/departments/EditDepartmentModal";
 
 interface ExtendedDepartment extends Department {
   professorIds?: string[];
@@ -154,10 +155,12 @@ export default function DepartmentDetailsPage() {
           </div>
           {user?.role === UserRole.ADMIN && (
             <div className="flex items-center gap-3 shrink-0">
-              <Button variant="outline" className="flex items-center gap-2">
-                <Edit className="h-4 w-4" />
-                <span>Edit Department</span>
-              </Button>
+              <EditDepartmentModal
+                department={department}
+                onDepartmentUpdated={(updatedDepartment) => {
+                  setDepartment(updatedDepartment);
+                }}
+              />
               <Button
                 className="flex items-center gap-2"
                 onClick={() => setIsHeadProfessorDialogOpen(true)}
