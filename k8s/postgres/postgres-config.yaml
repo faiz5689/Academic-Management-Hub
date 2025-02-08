@@ -1,6 +1,11 @@
+# postgres-config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
+  labels:
+    app: academic-hub-postgres
 data:
   POSTGRES_DB: academic_hub_db
+  POSTGRES_HOST: academic-hub-postgres
+  POSTGRES_PORT: "5432"

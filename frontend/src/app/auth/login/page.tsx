@@ -1,12 +1,18 @@
 // src/app/auth/login/page.tsx
 "use client";
 
+import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import Toast from "@/components/ui/Toast";
+
+function LoginContent() {
+  const searchParams = useSearchParams();
+  // Your existing component logic...
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

@@ -1,6 +1,7 @@
+# frontend-config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: frontend-config
 data:
-  NEXT_PUBLIC_API_URL: http://backend:8080
+  NEXT_PUBLIC_API_URL: http://academic-hub-backend-service:8080/api # Updated to match service name

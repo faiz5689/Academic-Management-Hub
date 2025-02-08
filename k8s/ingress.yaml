@@ -4,28 +4,24 @@ kind: Ingress
 metadata:
   name: academic-hub-ingress
   annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   rules:
-  - http:
-      paths:
-      - pathType: Prefix
-        path: /api
-        backend:
-          service:
-            name: backend
-            port:
-              number: 8080
-      - pathType: Prefix
-        path: /
-        backend:
-          service:
-            name: frontend
-            port:
-              number: 3000
+    - host: academic-hub.local
+      http:
+        paths:
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: academic-hub-frontend-service
+                port:
+                  number: 80
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: academic-hub-backend-service
+                port:
+                  number: 8080

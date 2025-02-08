@@ -1,26 +1,45 @@
+# frontend-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: academic-hub-frontend
+  labels:
+    app: academic-hub-frontend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: frontend
+      app: academic-hub-frontend
   template:
     metadata:
       labels:
-        app: frontend
+        app: academic-hub-frontend
     spec:
       containers:
         - name: frontend
           image: academic-hub-frontend:latest
-          imagePullPolicy: Never  # For local development
+          imagePullPolicy: Never # Add this line
           ports:
             - containerPort: 3000
-          env:
-            - name: NEXT_PUBLIC_API_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: frontend-config
-                  key: NEXT_PUBLIC_API_URL
+          envFrom:
+            - configMapRef:
+                name: frontend-config
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: academic-hub-frontend-service
+spec:
+  selector:
+    app: academic-hub-frontend
+  ports:
+    - port: 80
+      targetPort: 3000
+  type: ClusterIP

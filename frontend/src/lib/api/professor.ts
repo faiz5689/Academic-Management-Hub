@@ -85,7 +85,7 @@ export const professorService = {
   
     try {
       const response = await axios.put<Professor>(
-        `${API_URL}/professors/${id}`,
+        `${API_URL}/professors/${id}/details`,
         data,
         {
           headers: {

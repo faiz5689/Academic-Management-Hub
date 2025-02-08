@@ -1,49 +1,47 @@
+# backend-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: academic-hub-backend
+  labels:
+    app: academic-hub-backend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: backend
+      app: academic-hub-backend
   template:
     metadata:
       labels:
-        app: backend
+        app: academic-hub-backend
     spec:
       containers:
         - name: backend
           image: academic-hub-backend:latest
-          imagePullPolicy: Never  # For local development
+          imagePullPolicy: Never # Add this line
           ports:
             - containerPort: 8080
           envFrom:
             - configMapRef:
                 name: backend-config
-          env:
-            - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_USER
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secrets
-                  key: POSTGRES_PASSWORD
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secrets
-                  key: JWT_SECRET
-            - name: SPRING_MAIL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secrets
-                  key: SPRING_MAIL_USERNAME
-            - name: SPRING_MAIL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: backend-secrets
-                  key: SPRING_MAIL_PASSWORD
+            - secretRef:
+                name: backend-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: academic-hub-backend-service
+spec:
+  selector:
+    app: academic-hub-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

@@ -5,36 +5,83 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: academic-hub-frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_API_URL=http://localhost:8080/api
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    networks:
+      - academic-hub-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
     build:
       context: ./backend/academic-management-hub
       dockerfile: Dockerfile
+    container_name: academic-hub-backend
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/academic_hub_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=your_password_here
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://academic-hub-postgres:5432/academic_hub_db
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME:-faizahmed}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-273001}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_FLYWAY_ENABLED=true
+      - SPRING_FLYWAY_BASELINE_ON_MIGRATE=true
+      - JWT_SECRET=${JWT_SECRET:-o052j19nmCPHXewgAjOYo0Mq4+8r9oMN8y9C1MNs1jC0gRQfL9F33rk6AoiJZJ83MJWHfhP7Hjt/GPzYc7oeIA==}
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=${MAIL_USERNAME:-fa.research1048@gmail.com}
+      - SPRING_MAIL_PASSWORD=${MAIL_PASSWORD:-cuvheuiucjkbbvyu}
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
+    networks:
+      - academic-hub-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  db:
+  postgres:
     image: postgres:16-alpine
+    container_name: academic-hub-postgres
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_DB=academic_hub_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=your_password_here
+      - POSTGRES_USER=${DB_USERNAME:-faizahmed}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-273001}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - academic-hub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-faizahmed}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: 
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"
 
 volumes:
   postgres_data:
+    name: academic-hub-postgres-data
+
+networks:
+  academic-hub-network:
+    name: academic-hub-network
+    driver: bridge
